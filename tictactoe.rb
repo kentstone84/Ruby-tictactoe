@@ -1,88 +1,77 @@
-board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+class AI
+  WIN_COMBINATIONS = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ]
 
-def display_board(board) 
-    puts " #{board[0]} | #{board[1]} | #{board[2]} "
-    puts "-----------"
-    puts " #{board[3]} | #{board[4]} | #{board[5]} "
-    puts "-----------"
-    puts " #{board[6]} | #{board[7]} | #{board[8]} "
-end
+  def initialize(ai_marker, human_marker)
+    @ai_marker = ai_marker
+    @human_marker = human_marker
+  end
 
-def input_to_index(user_input)
-    user_input.to_i - 1
-end
+  def best_move(board)
+    best_score = -Float::INFINITY
+    move = nil
 
-def move(board, index, player)
-    board[index] = player
-end
+    board.each_with_index do |spot, index|
+      next unless spot == ' '
+      board[index] = @ai_marker
+      score = minimax(board, false)
+      board[index] = ' '
+      if score > best_score
+        best_score = score
+        move = index
+      end
+    end
+    move
+  end
 
-def position_taken?(board, index)
-    if board[index] == " " || board[index] == "" || (board[index] == nil)
-        return false
+  private
+
+  def minimax(board, is_maximizing)
+    winner = check_winner(board)
+    return score(winner) if winner
+
+    if is_maximizing
+      best_score = -Float::INFINITY
+      board.each_with_index do |spot, index|
+        next unless spot == ' '
+        board[index] = @ai_marker
+        score = minimax(board, false)
+        board[index] = ' '
+        best_score = [score, best_score].max
+      end
+      best_score
     else
-        return true
+      best_score = Float::INFINITY
+      board.each_with_index do |spot, index|
+        next unless spot == ' '
+        board[index] = @human_marker
+        score = minimax(board, true)
+        board[index] = ' '
+        best_score = [score, best_score].min
+      end
+      best_score
     end
-end
+  end
 
-def valid_move?(board, index)
-    if index.between?(0, 8) && !position_taken?(board, index)
-        return true
+  def score(winner)
+    return 10 if winner == @ai_marker
+    return -10 if winner == @human_marker
+    0
+  end
+
+  def check_winner(board)
+    WIN_COMBINATIONS.each do |combo|
+      spots = combo.map { |i| board[i] }
+      if spots.all? { |s| s == @ai_marker }
+        return @ai_marker
+      elsif spots.all? { |s| s == @human_marker }
+        return @human_marker
+      end
     end
+    return 'draw' if board.none? { |s| s == ' ' }
+    nil
+  end
 end
-
-def turn_count (board)
-    counter = 0
-    board.each do |spaces|
-        if spaces == "X" || spaces == "O"
-            counter += 1
-        end
-    end
-    counter
-end
-
-def current_player(board)
-    turn_count(board) % 2 == 0 ? "X" : "O"
-end
-
-def over?(board)
-  won?(board) || draw?(board)
-end
-
-def won?(board)
-    WIN_COMBINATIONS.detect do |win_combination|
-       win_index_1 = win_combination[0]
-       win_index_2 = win_combination[1]
-       win_index_3 = win_combination[2]
-
-       position_1 = board[win_index_1] # value of board at win_index_1
-       position_2 = board[win_index_2] # value of board at win_index_2
-       position_3 = board[win_index_3] # value of board at win_index_3
-
-       if (position_1 == "X" && position_2 == "X" && position_3 == "X") || (position_1 == "O" && position_2 == "O" && position_3 == "O")
-           return win_combination # return the win_combination indexes that won.
-       end
-    end
-    return false
-end
-
-def draw?(board)
-    full?(board) && !won?(board)
-end
-
-def full?(board)
-    board.all? do |element|
-        element == "X" || element == "O"
-    end
-end
-
-def winner(board)
-    if winning_combination = won?(board)
-        board[winning_combination.first]
-    end
-end
-
-def turn(board)
-    puts "Please enter 1-9:"
-    input = gets.strip
-    index = input_to_index(input)
-    if valid
