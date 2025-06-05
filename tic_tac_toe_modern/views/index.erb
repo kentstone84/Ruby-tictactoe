@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tic Tac Toe AI</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Tic Tac Toe</h1>
+
+  <% if @board.winner %>
+    <h2><%= @board.winner %> wins!</h2>
+  <% elsif @board.draw? %>
+    <h2>It's a draw!</h2>
+  <% end %>
+
+  <form action="/move" method="post">
+    <div class="board">
+      <% @board.cells.each_with_index do |cell, index| %>
+        <% if cell == " " && !@board.winner && !@board.draw? %>
+          <button name="move" value="<%= index %>"><%= index + 1 %></button>
+        <% else %>
+          <span class="cell"><%= cell %></span>
+        <% end %>
+      <% end %>
+    </div>
+  </form>
+
+  <form action="/reset" method="post">
+    <button>Reset Game</button>
+  </form>
+</body>
+</html>

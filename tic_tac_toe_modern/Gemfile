@@ -1,0 +1,16 @@
+source 'https://rubygems.org'
+
+gem 'sinatra'
+gem 'rack'
+gem 'rerun' # optional: auto-reload changes during dev
+gem 'rspec', '~> 3.13'
+gem 'rack-test' # for testing Sinatra apps
+
+group :development, :test do
+  gem 'pry' # optional: for debugging
+end
+
+# Optional: if you want to use a specific version of Ruby
+# ruby '3.1.0' # uncomment and set your desired Ruby version
+gem "rackup", "~> 2.2"
+gem "puma", "~> 6.6"
